@@ -73,7 +73,16 @@ async function main() {
 
   // Middleware CORS
   app.use((req, res, next) => {
-    res.setHeader("Access-Control-Allow-Origin", "*");
+    const allowedOrigins = [
+      "http://localhost:5173",
+      "https://crasabot.netlify.app/", // 👈 Reemplazar con tu URL de Netlify
+    ];
+
+    const origin = req.headers.origin;
+    if (allowedOrigins.includes(origin)) {
+      res.setHeader("Access-Control-Allow-Origin", origin);
+    }
+
     res.setHeader(
       "Access-Control-Allow-Methods",
       "GET, POST, PUT, DELETE, OPTIONS"
