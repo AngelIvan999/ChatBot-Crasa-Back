@@ -1,7 +1,7 @@
 # Etapa de construcción (instalar dependencias)
 FROM node:21-alpine3.18 AS builder
 
-WORKDIR /app
+WORKDIR /tmp
 
 RUN corepack enable && corepack prepare pnpm@latest --activate
 ENV PNPM_HOME=/usr/local/bin
@@ -14,13 +14,13 @@ COPY . .
 # Etapa final (deploy)
 FROM node:21-alpine3.18 AS deploy
 
-WORKDIR /app
+WORKDIR /tmp
 
 ARG PORT=3000
 ENV PORT=$PORT
 EXPOSE $PORT
 
-COPY --from=builder /app ./
+COPY --from=builder /tmp ./
 
 RUN corepack enable && corepack prepare pnpm@latest --activate 
 ENV PNPM_HOME=/usr/local/bin
