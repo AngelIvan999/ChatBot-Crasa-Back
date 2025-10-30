@@ -17,6 +17,8 @@ import aiAssistantFlow from "./flows/ai-assistant.flow.js";
 
 const PORT = process.env.PORT || 3000;
 
+const processedMessages = new Set();
+
 async function main() {
   console.log("🚀 Iniciando chatbot...");
   console.log("🤖 AI Provider:", process.env.AI_PROVIDER);
@@ -285,6 +287,18 @@ async function main() {
   // Interceptar mensajes entrantes
   provider.on("message", async (ctx) => {
     try {
+      const messageId = `${ctx.from}_${ctx.body}_${Date.now()}`;
+      if (processedMessages.has(messageId)) {
+        console.log(`⏭️ Mensaje duplicado ignorado: ${ctx.body}`);
+        return;
+      }
+
+      processedMessages.add(messageId);
+      if (processedMessages.size > 100) {
+        const firstItem = processedMessages.values().next().value;
+        processedMessages.delete(firstItem);
+      }
+
       console.log(`📨 Mensaje recibido de ${ctx.from}: "${ctx.body}"`);
       const user = await supabaseService.findOrCreateUser(ctx.from);
       await supabaseService.saveChatMessage(
