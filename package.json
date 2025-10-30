@@ -1,0 +1,34 @@
+{
+  "name": "base-bailey-json",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/app.js",
+  "type": "module",
+  "scripts": {
+    "lint": "eslint . --no-ignore",
+    "dev": "nodemon ./src/app.js",
+    "start": "node ./src/app.js"
+  },
+  "keywords": [],
+  "dependencies": {
+    "@builderbot/bot": "^1.3.0",
+    "@builderbot/provider-meta": "^1.3.0",
+    "@supabase/supabase-js": "^2.57.4",
+    "axios": "^1.12.2",
+    "dotenv": "^17.2.2",
+    "express": "^5.1.0",
+    "groq-sdk": "^0.32.0",
+    "luxon": "^3.7.2",
+    "node-cron": "^3.0.3",
+    "openai": "^5.20.2",
+    "pdfkit": "^0.17.2",
+    "pg": "^8.16.3"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "eslint-plugin-builderbot": "latest",
+    "nodemon": "^3.1.0"
+  },
+  "author": "",
+  "license": "ISC"
+}
