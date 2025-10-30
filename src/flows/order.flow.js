@@ -303,7 +303,7 @@ const contactSupportFlow = addKeyword([
   "📞 *Contactar Soporte*\n\n" +
     "Si tienes algún problema con tu pedido o necesitas mayor ayuda:\n\n" +
     "📱 WhatsApp: +52 777 412 0544\n" +
-    "📧 Email: irving@crasa.com\n" +
+    "📧 Email: admin@crasa.com\n" +
     "🕐 Horario: Lun-Dom 9:00-22:00\n\n" +
     "¡Estamos aquí para ayudarte!",
   {
