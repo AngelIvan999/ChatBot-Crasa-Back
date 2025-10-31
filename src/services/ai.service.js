@@ -43,7 +43,7 @@ export async function generateAIResponse(userMessage, userId) {
         const priceDisplay = (parseFloat(p.prc_menudeo) || 0).toFixed(2);
         return `ID:${p.id} | ${p.nombre_product} | Sabores: ${
           p.sabores_array?.join(", ") || "N/A"
-        } | Paquete de ${p.cant_paquete} piezas | $${priceDisplay}`;
+        } | Paquete de ${p.pzs_caja} piezas | $${priceDisplay}`;
       })
       .join("\n");
 
@@ -73,12 +73,12 @@ REGLAS IMPORTANTES:
    - Mantener TODO en una sola línea por producto
 
    **EJEMPLO CORRECTO:**
-   1. *JUMEX 125*: Paquete de 10pzs, Sabores: MANZANA, MANGO, DURAZNO ($238.00)
-   2. *JUMEX BOTELLITA*: Paquete de 6pzs, Sabores: MANZANA, MANGO, DURAZNO ($247.00)
-   3. *BIDA 237*: Paquete de 12pzs, Sabores: MANZANA, UVA, FRESA, GUAYABA, MANGO ($180.00)
+   1. *JUMEX 125*: Paquete de 50pzs, Sabores: MANZANA, MANGO, DURAZNO ($238.00)
+   2. *JUMEX BOTELLITA*: Paquete de 24pzs, Sabores: MANZANA, MANGO, DURAZNO ($247.00)
+   3. *BIDA 237*: Paquete de 24pzs, Sabores: MANZANA, UVA, FRESA, GUAYABA, MANGO ($180.00)
 
    **EJEMPLO INCORRECTO (NO HACER):**
-   1. **JUMEX 125**: Paquete de 10 piezas, sabores: MANZANA, MANGO, DURAZNO ($238.00)
+   1. **JUMEX 125**: Paquete de 50 piezas, sabores: MANZANA, MANGO, DURAZNO ($238.00)
    ❌ (doble asterisco y "piezas" completo)
 
    **INICIO Y CIERRE DEL MENÚ:**
@@ -187,7 +187,7 @@ REGLAS IMPORTANTES:
 
    Usuario dice: "Dame JUMEX BOTELLITA de manzana y durazno"
    ❌ INCORRECTO: Generar JSON
-   ✅ CORRECTO: "¿Cómo quieres distribuir las 6 piezas? Por ejemplo: 3 manzana y 3 durazno, o 4 manzana y 2 durazno?"
+   ✅ CORRECTO: "¿Cómo quieres distribuir las 24 piezas? Por ejemplo: 12 manzana y 12 durazno, o 16 manzana y 8 durazno?"
 
    **PALABRAS CLAVE QUE INDICAN CANTIDADES ESPECÍFICAS** (solo entonces generar JSON):
    - Números explícitos: "3 de manzana y 3 de durazno"
@@ -196,12 +196,12 @@ REGLAS IMPORTANTES:
    - "Completo/todo": "todo de manzana", "completo de durazno"
 
    **FORMATO DE PREGUNTA PARA AMBIGÜEDADES:**
-   "¡Perfecto! JUMEX BOTELLITA viene en paquete de 6 piezas.
+   "¡Perfecto! JUMEX BOTELLITA viene en paquete de 24 piezas.
    ¿Cómo quieres distribuir los sabores?
    
    Ejemplos:
-   • 3 manzana y 3 durazno
-   • 4 manzana y 2 durazno
+   • 12 manzana y 12 durazno
+   • 16 manzana y 8 durazno
    • Todo de un solo sabor
    
    ¿Cómo lo prefieres?"
@@ -215,17 +215,17 @@ REGLAS IMPORTANTES:
 
 6. **FORMATO JSON CRÍTICO** - NUNCA uses backticks:
    Para pedidos de UN solo sabor (paquete completo):
-   {"items":[{"product_id":10,"nombre_product":"JUMEX SPORT","sabor_id":9,"sabor_nombre":"NARANJA","quantity":6,"total_price":183.00}]}
+   {"items":[{"product_id":10,"nombre_product":"JUMEX SPORT","sabor_id":9,"sabor_nombre":"NARANJA","quantity":12,"total_price":183.00}]}
    
    Para múltiples sabores del mismo producto:
    {"items":[
-     {"product_id":4,"nombre_product":"JUMEX JUGOSA","sabor_id":1,"sabor_nombre":"MANZANA","quantity":2,"total_price":54.33},
-     {"product_id":4,"nombre_product":"JUMEX JUGOSA","sabor_id":2,"sabor_nombre":"MANGO","quantity":2,"total_price":54.33},
-     {"product_id":4,"nombre_product":"JUMEX JUGOSA","sabor_id":4,"sabor_nombre":"GUAYABA","quantity":2,"total_price":54.34}
+     {"product_id":4,"nombre_product":"JUMEX JUGOSA","sabor_id":1,"sabor_nombre":"MANZANA","quantity":4,"total_price":54.33},
+     {"product_id":4,"nombre_product":"JUMEX JUGOSA","sabor_id":2,"sabor_nombre":"MANGO","quantity":4,"total_price":54.33},
+     {"product_id":4,"nombre_product":"JUMEX JUGOSA","sabor_id":4,"sabor_nombre":"GUAYABA","quantity":4,"total_price":54.34}
    ]}
 
-   Ejemplo de json CORRECTO: {"items":[{"product_id":4,"nombre_product":"JUMEX JUGOSA","sabor_id":1,"sabor_nombre":"MANZANA","quantity":6,"total_price":163.00}]}
-   Ejemplo de json INCORRECTO (tiraras el sistema y dara error): {"items":[{"product_id":4,"nombre_product":"JUMEX JUGOSA","sabor_id":1,"sabor_nombre":"MANZANA","quantity":6,"total_price":163.00}]
+   Ejemplo de json CORRECTO: {"items":[{"product_id":4,"nombre_product":"JUMEX JUGOSA","sabor_id":1,"sabor_nombre":"MANZANA","quantity":12,"total_price":163.00}]}
+   Ejemplo de json INCORRECTO (tiraras el sistema y dara error): {"items":[{"product_id":4,"nombre_product":"JUMEX JUGOSA","sabor_id":1,"sabor_nombre":"MANZANA","quantity":12,"total_price":163.00}]
 
    ⚠️ CRÍTICO: 
    - JSON debe aparecer DIRECTAMENTE en tu respuesta, SIN backticks
@@ -236,9 +236,9 @@ REGLAS IMPORTANTES:
 7. **CÁLCULO DE PRECIOS POR UNIDAD **:
     - Para sacar el precio por unidad para acompletar los precios de paquetes debes dividir el prc_menudeo por la cantidad de piezas del paquete
    Ejemplos:
-   - JUMEX BOTELLITA: (paquete $247.00 ÷ 6 piezas)
-   - JUMEX LATA 335: (paquete $272.00 ÷ 6 piezas)
-   - JUMEX JUGOSA: (paquete $163.00 ÷ 6 piezas)
+   - JUMEX BOTELLITA: (paquete $247.00 ÷ 24 piezas)
+   - JUMEX LATA 335: (paquete $272.00 ÷ 24 piezas)
+   - JUMEX JUGOSA: (paquete $163.00 ÷ 12 piezas)
 
 8. **MAPEO DE SABORES** (úsalo para sabor_id):
    - MANZANA: 1, MANGO: 2, DURAZNO: 3, GUAYABA: 4, UVA: 5
@@ -247,25 +247,25 @@ REGLAS IMPORTANTES:
 
 9. **REGLA CRÍTICA DE PAQUETES**:
    - SIEMPRE vender paquetes COMPLETOS
-   - Si piden "1 paquete de JUMEX JUGOSA de manzana" = 6 piezas de manzana por $163.00
+   - Si piden "1 paquete de JUMEX JUGOSA de manzana" = 12 piezas de manzana por $163.00
    - Si piden sabores mezclados, completar hasta el total del paquete
-   - Ejemplo: "3 manzana y 3 mango de JUMEX BOTELLITA" = paquete completo de 6 piezas por $247.00    
+   - Ejemplo: "12 manzana y 12 mango de JUMEX BOTELLITA" = paquete completo de 24 piezas por $247.00    
 
 EJEMPLOS CORRECTOS:
 
 Usuario: "Me puedes dar un paquete de jugosa de manzana?"
-Respuesta: "¡Perfecto! Un paquete completo de JUMEX JUGOSA de manzana por $82.00 (6 piezas).
+Respuesta: "¡Perfecto! Un paquete completo de JUMEX JUGOSA de manzana por $82.00 (12 piezas).
 
-{"items":[{"product_id":4,"nombre_product":"JUMEX JUGOSA","sabor_id":1,"sabor_nombre":"MANZANA","quantity":6,"total_price":82.00}]}
+{"items":[{"product_id":4,"nombre_product":"JUMEX JUGOSA","sabor_id":1,"sabor_nombre":"MANZANA","quantity":12,"total_price":82.00}]}
 
 ¿Algo más que desees agregar?"
 
-Usuario: "Dame un paquete de botellitas pero 3 de manzana y 3 de mango"  
-Respuesta: "¡Perfecto! Un paquete completo de JUMEX BOTELLITA: 3 manzana + 3 mango por $62.00.
+Usuario: "Dame un paquete de botellitas pero 12 de manzana y 12 de mango"  
+Respuesta: "¡Perfecto! Un paquete completo de JUMEX BOTELLITA: 12 manzana + 12 mango por $62.00.
 
 {"items":[
-  {"product_id":2,"nombre_product":"JUMEX BOTELLITA","sabor_id":1,"sabor_nombre":"MANZANA","quantity":3,"total_price":31.00},
-  {"product_id":2,"nombre_product":"JUMEX BOTELLITA","sabor_id":2,"sabor_nombre":"MANGO","quantity":3,"total_price":31.00}
+  {"product_id":2,"nombre_product":"JUMEX BOTELLITA","sabor_id":1,"sabor_nombre":"MANZANA","quantity":12,"total_price":31.00},
+  {"product_id":2,"nombre_product":"JUMEX BOTELLITA","sabor_id":2,"sabor_nombre":"MANGO","quantity":12,"total_price":31.00}
 ]}
 
 ¿Algo más que desees agregar?"
@@ -277,57 +277,57 @@ EJEMPLO 1. PEDIDO MEDIANO COMPLETO EN UN SOLO MENSAJE (EJEMPLO 1 SOLO SABOR POR 
 Ejemplo de JSON que deberias devolver para pedido mediano-grande: 
 {
   "items": [
-    {"product_id": 1, "nombre_product": "JUMEX 125", "sabor_id": 1, "sabor_nombre": "MANZANA", "quantity": 30, "total_price": 714.00},
-    {"product_id": 1, "nombre_product": "JUMEX 125", "sabor_id": 2, "sabor_nombre": "MANGO", "quantity": 20, "total_price": 476.00},
-    {"product_id": 1, "nombre_product": "JUMEX 125", "sabor_id": 3, "sabor_nombre": "DURAZNO", "quantity": 10, "total_price": 238.00},
+    {"product_id": 1, "nombre_product": "JUMEX 125", "sabor_id": 1, "sabor_nombre": "MANZANA", "quantity": 150, "total_price": 714.00},
+    {"product_id": 1, "nombre_product": "JUMEX 125", "sabor_id": 2, "sabor_nombre": "MANGO", "quantity": 100, "total_price": 476.00},
+    {"product_id": 1, "nombre_product": "JUMEX 125", "sabor_id": 3, "sabor_nombre": "DURAZNO", "quantity": 50, "total_price": 238.00},
 
-    {"product_id": 2, "nombre_product": "JUMEX BOTELLITA", "sabor_id": 1, "sabor_nombre": "MANZANA", "quantity": 12, "total_price": 494.00},
-    {"product_id": 2, "nombre_product": "JUMEX BOTELLITA", "sabor_id": 2, "sabor_nombre": "MANGO", "quantity": 6, "total_price": 247.00},
+    {"product_id": 2, "nombre_product": "JUMEX BOTELLITA", "sabor_id": 1, "sabor_nombre": "MANZANA", "quantity": 48, "total_price": 494.00},
+    {"product_id": 2, "nombre_product": "JUMEX BOTELLITA", "sabor_id": 2, "sabor_nombre": "MANGO", "quantity": 24, "total_price": 247.00},
 
-    {"product_id": 3, "nombre_product": "JUMEX LATA 335", "sabor_id": 1, "sabor_nombre": "MANZANA", "quantity": 6, "total_price": 272.00},
-    {"product_id": 3, "nombre_product": "JUMEX LATA 335", "sabor_id": 2, "sabor_nombre": "MANGO", "quantity": 6, "total_price": 272.00},
-    {"product_id": 3, "nombre_product": "JUMEX LATA 335", "sabor_id": 3, "sabor_nombre": "DURAZNO", "quantity": 6, "total_price": 272.00},
+    {"product_id": 3, "nombre_product": "JUMEX LATA 335", "sabor_id": 1, "sabor_nombre": "MANZANA", "quantity": 24, "total_price": 272.00},
+    {"product_id": 3, "nombre_product": "JUMEX LATA 335", "sabor_id": 2, "sabor_nombre": "MANGO", "quantity": 24, "total_price": 272.00},
+    {"product_id": 3, "nombre_product": "JUMEX LATA 335", "sabor_id": 3, "sabor_nombre": "DURAZNO", "quantity": 24, "total_price": 272.00},
 
-    {"product_id": 4, "nombre_product": "JUMEX JUGOSA", "sabor_id": 1, "sabor_nombre": "MANZANA", "quantity": 12, "total_price": 326.00},
-    {"product_id": 4, "nombre_product": "JUMEX JUGOSA", "sabor_id": 2, "sabor_nombre": "MANGO", "quantity": 6, "total_price": 163.00},
-    {"product_id": 4, "nombre_product": "JUMEX JUGOSA", "sabor_id": 3, "sabor_nombre": "DURAZNO", "quantity": 6, "total_price": 163.00},
-    {"product_id": 4, "nombre_product": "JUMEX JUGOSA", "sabor_id": 4, "sabor_nombre": "GUAYABA", "quantity": 6, "total_price": 163.00},
-    {"product_id": 4, "nombre_product": "JUMEX JUGOSA", "sabor_id": 5, "sabor_nombre": "UVA", "quantity": 6, "total_price": 163.00},
+    {"product_id": 4, "nombre_product": "JUMEX JUGOSA", "sabor_id": 1, "sabor_nombre": "MANZANA", "quantity": 24, "total_price": 326.00},
+    {"product_id": 4, "nombre_product": "JUMEX JUGOSA", "sabor_id": 2, "sabor_nombre": "MANGO", "quantity": 12, "total_price": 163.00},
+    {"product_id": 4, "nombre_product": "JUMEX JUGOSA", "sabor_id": 3, "sabor_nombre": "DURAZNO", "quantity": 12, "total_price": 163.00},
+    {"product_id": 4, "nombre_product": "JUMEX JUGOSA", "sabor_id": 4, "sabor_nombre": "GUAYABA", "quantity": 12, "total_price": 163.00},
+    {"product_id": 4, "nombre_product": "JUMEX JUGOSA", "sabor_id": 5, "sabor_nombre": "UVA", "quantity": 12, "total_price": 163.00},
 
-    {"product_id": 5, "nombre_product": "JUMEX LB 460", "sabor_id": 1, "sabor_nombre": "MANZANA", "quantity": 12, "total_price": 387.00},
-    {"product_id": 5, "nombre_product": "JUMEX LB 460", "sabor_id": 7, "sabor_nombre": "PIÑA/COCO", "quantity": 6, "total_price": 193.50},
+    {"product_id": 5, "nombre_product": "JUMEX LB 460", "sabor_id": 1, "sabor_nombre": "MANZANA", "quantity": 48, "total_price": 387.00},
+    {"product_id": 5, "nombre_product": "JUMEX LB 460", "sabor_id": 7, "sabor_nombre": "PIÑA/COCO", "quantity": 24, "total_price": 193.50},
 
-    {"product_id": 6, "nombre_product": "JUMEX 475", "sabor_id": 1, "sabor_nombre": "MANZANA", "quantity": 6, "total_price": 174.00},
-    {"product_id": 6, "nombre_product": "JUMEX 475", "sabor_id": 3, "sabor_nombre": "DURAZNO", "quantity": 6, "total_price": 174.00},
-    {"product_id": 6, "nombre_product": "JUMEX 475", "sabor_id": 7, "sabor_nombre": "PIÑA/COCO", "quantity": 6, "total_price": 174.00},
+    {"product_id": 6, "nombre_product": "JUMEX 475", "sabor_id": 1, "sabor_nombre": "MANZANA", "quantity": 12, "total_price": 174.00},
+    {"product_id": 6, "nombre_product": "JUMEX 475", "sabor_id": 3, "sabor_nombre": "DURAZNO", "quantity": 12, "total_price": 174.00},
+    {"product_id": 6, "nombre_product": "JUMEX 475", "sabor_id": 7, "sabor_nombre": "PIÑA/COCO", "quantity": 12, "total_price": 174.00},
 
-    {"product_id": 7, "nombre_product": "JUMEX TETRA", "sabor_id": 1, "sabor_nombre": "MANZANA", "quantity": 12, "total_price": 538.00},
-    {"product_id": 7, "nombre_product": "JUMEX TETRA", "sabor_id": 8, "sabor_nombre": "PIÑA", "quantity": 6, "total_price": 269.00},
-    {"product_id": 7, "nombre_product": "JUMEX TETRA", "sabor_id": 5, "sabor_nombre": "UVA", "quantity": 6, "total_price": 269.00},
+    {"product_id": 7, "nombre_product": "JUMEX TETRA", "sabor_id": 1, "sabor_nombre": "MANZANA", "quantity": 24, "total_price": 538.00},
+    {"product_id": 7, "nombre_product": "JUMEX TETRA", "sabor_id": 8, "sabor_nombre": "PIÑA", "quantity": 12, "total_price": 269.00},
+    {"product_id": 7, "nombre_product": "JUMEX TETRA", "sabor_id": 5, "sabor_nombre": "UVA", "quantity": 12, "total_price": 269.00},
 
-    {"product_id": 8, "nombre_product": "BIDA 237", "sabor_id": 1, "sabor_nombre": "MANZANA", "quantity": 24, "total_price": 360.00},
-    {"product_id": 8, "nombre_product": "BIDA 237", "sabor_id": 10, "sabor_nombre": "FRESA", "quantity": 12, "total_price": 180.00},
-    {"product_id": 8, "nombre_product": "BIDA 237", "sabor_id": 4, "sabor_nombre": "GUAYABA", "quantity": 12, "total_price": 180.00},
+    {"product_id": 8, "nombre_product": "BIDA 237", "sabor_id": 1, "sabor_nombre": "MANZANA", "quantity": 48, "total_price": 360.00},
+    {"product_id": 8, "nombre_product": "BIDA 237", "sabor_id": 10, "sabor_nombre": "FRESA", "quantity": 24, "total_price": 180.00},
+    {"product_id": 8, "nombre_product": "BIDA 237", "sabor_id": 4, "sabor_nombre": "GUAYABA", "quantity": 24, "total_price": 180.00},
 
-    {"product_id": 9, "nombre_product": "BIDA 500", "sabor_id": 1, "sabor_nombre": "MANZANA", "quantity": 6, "total_price": 125.36},
-    {"product_id": 9, "nombre_product": "BIDA 500", "sabor_id": 2, "sabor_nombre": "MANGO", "quantity": 6, "total_price": 125.36},
+    {"product_id": 9, "nombre_product": "BIDA 500", "sabor_id": 1, "sabor_nombre": "MANZANA", "quantity": 12, "total_price": 125.36},
+    {"product_id": 9, "nombre_product": "BIDA 500", "sabor_id": 2, "sabor_nombre": "MANGO", "quantity": 12, "total_price": 125.36},
 
-    {"product_id": 10, "nombre_product": "JUMEX SPORT", "sabor_id": 11, "sabor_nombre": "LIMÓN", "quantity": 6, "total_price": 183.00},
-    {"product_id": 10, "nombre_product": "JUMEX SPORT", "sabor_id": 12, "sabor_nombre": "FRUTAS", "quantity": 6, "total_price": 183.00}
+    {"product_id": 10, "nombre_product": "JUMEX SPORT", "sabor_id": 11, "sabor_nombre": "LIMÓN", "quantity": 12, "total_price": 183.00},
+    {"product_id": 10, "nombre_product": "JUMEX SPORT", "sabor_id": 12, "sabor_nombre": "FRUTAS", "quantity": 12, "total_price": 183.00}
   ]
 }
 
 EJEMPLO 2. Pedido completo en un solo mensaje con sabores mezclados (situación real), y JSON esperado
-"Dame 3 cajas de JUMEX JUGOSA: la primera caja toda de mango y las otras dos cajas que cada una tenga 3 piezas de durazno, 2 piezas de manzana y 1 pieza de uva. También dame 5 cajas de JUMEX BOTELLITA: de esas 5, 3 cajas todas de manzana y 2 cajas todas de mango. ¿Tienes todo y cuánto me sale?"
+"Dame 3 cajas de JUMEX JUGOSA: la primera caja toda de mango y las otras dos cajas que cada una tenga 6 piezas de durazno, 4 piezas de manzana y 2 pieza de uva. También dame 5 cajas de JUMEX BOTELLITA: de esas 5, 3 cajas todas de manzana y 2 cajas todas de mango. ¿Tienes todo y cuánto me sale?"
 {
   "items": [
-    {"product_id": 4, "nombre_product": "JUMEX JUGOSA", "sabor_id": 2, "sabor_nombre": "MANGO", "quantity": 6, "total_price": 163.00},
-    {"product_id": 4, "nombre_product": "JUMEX JUGOSA", "sabor_id": 3, "sabor_nombre": "DURAZNO", "quantity": 6, "total_price": 163.00},
-    {"product_id": 4, "nombre_product": "JUMEX JUGOSA", "sabor_id": 1, "sabor_nombre": "MANZANA", "quantity": 4, "total_price": 108.67},
-    {"product_id": 4, "nombre_product": "JUMEX JUGOSA", "sabor_id": 5, "sabor_nombre": "UVA", "quantity": 2, "total_price": 54.33},
+    {"product_id": 4, "nombre_product": "JUMEX JUGOSA", "sabor_id": 2, "sabor_nombre": "MANGO", "quantity": 12, "total_price": 163.00},
+    {"product_id": 4, "nombre_product": "JUMEX JUGOSA", "sabor_id": 3, "sabor_nombre": "DURAZNO", "quantity": 12, "total_price": 163.00},
+    {"product_id": 4, "nombre_product": "JUMEX JUGOSA", "sabor_id": 1, "sabor_nombre": "MANZANA", "quantity": 8, "total_price": 108.67},
+    {"product_id": 4, "nombre_product": "JUMEX JUGOSA", "sabor_id": 5, "sabor_nombre": "UVA", "quantity": 4, "total_price": 54.33},
 
-    {"product_id": 2, "nombre_product": "JUMEX BOTELLITA", "sabor_id": 1, "sabor_nombre": "MANZANA", "quantity": 18, "total_price": 741.00},
-    {"product_id": 2, "nombre_product": "JUMEX BOTELLITA", "sabor_id": 2, "sabor_nombre": "MANGO", "quantity": 12, "total_price": 494.00}
+    {"product_id": 2, "nombre_product": "JUMEX BOTELLITA", "sabor_id": 1, "sabor_nombre": "MANZANA", "quantity": 36, "total_price": 741.00},
+    {"product_id": 2, "nombre_product": "JUMEX BOTELLITA", "sabor_id": 2, "sabor_nombre": "MANGO", "quantity": 24, "total_price": 494.00}
   ]
 }
 
@@ -335,17 +335,17 @@ EJEMPLO 2. Pedido completo en un solo mensaje con sabores mezclados (situación 
     Cuando AGREGUES productos al carrito, usa estos formatos CORTOS Y DIRECTOS:
 
     **Para UN sabor completo:**
-    "¡Listo! Agregado: JUMEX BOTELLITA de manzana (6pzs) - $247.00
+    "¡Listo! Agregado: JUMEX BOTELLITA de manzana (24pzs) - $247.00
     
     {"items":[...]}"
 
     **Para SABORES MEZCLADOS:**
-    "¡Perfecto! Agregado: JUMEX BOTELLITA, 3 manzana + 3 durazno - $247.00
+    "¡Perfecto! Agregado: JUMEX BOTELLITA, 12 manzana + 12 durazno - $247.00
     
     {"items":[...]}"
 
     **Para MÚLTIPLES PAQUETES:**
-    "¡Excelente! Agregados: 2 JUMEX JUGOSA de mango (12pzs) - $326.00
+    "¡Excelente! Agregados: 2 JUMEX JUGOSA de mango (24pzs) - $326.00
     
     {"items":[...]}"
 
@@ -364,33 +364,33 @@ EJEMPLOS CORRECTOS:
 
 **Ejemplo 1: Primera solicitud ambigua**
 Usuario: "Me puedes dar un paquete de jugosa de manzana?"
-Respuesta: "¡Perfecto! Un paquete completo de JUMEX JUGOSA de manzana (6pzs) - $163.00
+Respuesta: "¡Perfecto! Un paquete completo de JUMEX JUGOSA de manzana (12pzs) - $163.00
 
-{"items":[{"product_id":4,"nombre_product":"JUMEX JUGOSA","sabor_id":1,"sabor_nombre":"MANZANA","quantity":6,"total_price":163.00}]}"
+{"items":[{"product_id":4,"nombre_product":"JUMEX JUGOSA","sabor_id":1,"sabor_nombre":"MANZANA","quantity":12,"total_price":163.00}]}"
 
 **Ejemplo 2: Solicitud de sabores mezclados sin cantidades**
 Usuario: "Dame un paquete de botellitas de manzana con durazno"  
 Respuesta: "¡Claro! JUMEX BOTELLITA está disponible en: MANZANA, MANGO, DURAZNO.
-¿Cómo quieres las 6 piezas? Ejemplo: 3 y 3, o 4 y 2?"
+¿Cómo quieres las 24 piezas? Ejemplo: 12 y 12, o 16 y 8?"
 
 **Ejemplo 3: Respuesta a tu pregunta de distribución**
-[Tú preguntaste]: "¿Cómo quieres las 6 piezas? 3 y 3, o 4 y 2?"
-Usuario: "3 y 3 porfa"
-Respuesta: "¡Listo! Agregado: JUMEX BOTELLITA, 3 manzana + 3 durazno - $247.00
+[Tú preguntaste]: "¿Cómo quieres las 24 piezas? 12 y 12, o 16 y 8?"
+Usuario: "12 y 12 porfa"
+Respuesta: "¡Listo! Agregado: JUMEX BOTELLITA, 12 manzana + 12 durazno - $247.00
 
 {"items":[
-  {"product_id":2,"nombre_product":"JUMEX BOTELLITA","sabor_id":1,"sabor_nombre":"MANZANA","quantity":3,"total_price":123.50},
-  {"product_id":2,"nombre_product":"JUMEX BOTELLITA","sabor_id":3,"sabor_nombre":"DURAZNO","quantity":3,"total_price":123.50}
+  {"product_id":2,"nombre_product":"JUMEX BOTELLITA","sabor_id":1,"sabor_nombre":"MANZANA","quantity":12,"total_price":123.50},
+  {"product_id":2,"nombre_product":"JUMEX BOTELLITA","sabor_id":3,"sabor_nombre":"DURAZNO","quantity":12,"total_price":123.50}
 ]}"
 
 **Ejemplo 4: Con contexto claro previo**
 [Historial]: "Me das JUMEX SPORT de naranja con mora azul?"
 Usuario: "Mitad y mitad"
-Respuesta: "¡Perfecto! Agregado: JUMEX SPORT, 3 naranja + 3 mora azul - $183.00
+Respuesta: "¡Perfecto! Agregado: JUMEX SPORT, 6 naranja + 6 mora azul - $183.00
 
 {"items":[
-  {"product_id":10,"nombre_product":"JUMEX SPORT","sabor_id":9,"sabor_nombre":"NARANJA","quantity":3,"total_price":91.50},
-  {"product_id":10,"nombre_product":"JUMEX SPORT","sabor_id":13,"sabor_nombre":"MORA AZUL","quantity":3,"total_price":91.50}
+  {"product_id":10,"nombre_product":"JUMEX SPORT","sabor_id":9,"sabor_nombre":"NARANJA","quantity":6,"total_price":91.50},
+  {"product_id":10,"nombre_product":"JUMEX SPORT","sabor_id":13,"sabor_nombre":"MORA AZUL","quantity":6,"total_price":91.50}
 ]}"
 
 ⚠️ IMPORTANTE FINAL:
@@ -402,10 +402,10 @@ Respuesta: "¡Perfecto! Agregado: JUMEX SPORT, 3 naranja + 3 mora azul - $183.00
 
 ⚠️ NUNCA olvides generar JSON para CUALQUIER pedido de producto.
 ⚠️ NUNCA uses backticks o formato de código para el JSON.
-⚠️ SIEMPRE vender paquetes completos según cant_paquete de la base de datos.
+⚠️ SIEMPRE vender paquetes completos según pzs_caja de la base de datos.
 ⚠️ Devuelve únicamente un JSON válido, sin explicaciones, sin texto extra. Ejemplo: { "items": [...] }
-⚠️ Si el mensaje del cliente es muy ambiguo "Necesito 6 cajas de sport 3 de naranja, 2 de uva y 1 mora azul" y te confundes sobre si se refieren a 3 cajas de naranja completa 2 cajas de uva y 1 caja de mora azul o 6 cajas con 3 pzs de naranja 2 de uva 1 una pieza de mora azul vuelve a preguntarle al usuario para rectificar su pedido y evitar confusiones.
-NOTA: Normalmente cuando sea una caja armada te diran frases como "Necesito 6 cajas de sport con 3pz de naranja, 2unidades de uva y 1 pieza mora azul", si no tiene esos conectores como pz, und, unidad, pieza, piezas, unidades, etc. Significa que es caja completa de un sabor pero si no comprendes el cotexto PREGUNTA Y RECTIFICA.
+⚠️ Si el mensaje del cliente es muy ambiguo "Necesito 12 cajas de sport 6 de naranja, 4 de uva y 2 mora azul" y te confundes sobre si se refieren a 6 cajas de naranja completa 4 cajas de uva y 2 caja de mora azul o 12 cajas con 6 pzs de naranja 4 de uva 2 una pieza de mora azul vuelve a preguntarle al usuario para rectificar su pedido y evitar confusiones.
+NOTA: Normalmente cuando sea una caja armada te diran frases como "Necesito 6 cajas de sport con 6pz de naranja, 4unidades de uva y 2 pieza mora azul", si no tiene esos conectores como pz, und, unidad, pieza, piezas, unidades, etc. Significa que es caja completa de un sabor pero si no comprendes el cotexto PREGUNTA Y RECTIFICA.
 ⚠️ IMPORTANTE: Devuelve **solo JSON**, sin texto, sin saltos de línea, sin explicaciones, directamente: {"items":[...]}
 `;
 

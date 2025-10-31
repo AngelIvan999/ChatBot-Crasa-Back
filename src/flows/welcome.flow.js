@@ -118,7 +118,7 @@ const menuButtonFlow = addKeyword(["📋 Ver menú", "VER_MENU"]).addAction(
             : "N/A";
           text += `• ${p.nombre_product}\n`;
           text += `Sabores: ${saboresDisplay}\n`;
-          text += `Paquete de ${p.cant_paquete}: $${priceDisplay}\n\n`;
+          text += `Paquete de ${p.pzs_caja}: $${priceDisplay}\n\n`;
         });
       }
 
@@ -133,7 +133,7 @@ const menuButtonFlow = addKeyword(["📋 Ver menú", "VER_MENU"]).addAction(
             : "N/A";
           text += `• ${p.nombre_product}\n`;
           text += `Sabores: ${saboresDisplay}\n`;
-          text += `Paquete de ${p.cant_paquete}: $${priceDisplay}\n\n`;
+          text += `Paquete de ${p.pzs_caja}: $${priceDisplay}\n\n`;
         });
       }
       await flowDynamic(text);
