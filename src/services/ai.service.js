@@ -244,21 +244,27 @@ REGLAS IMPORTANTES:
 
    ⚠️ REGLA DE ORO: Si NO hay números específicos en el mensaje = NO generar JSON = PREGUNTAR distribución
 
-6. **FORMATO JSON CRÍTICO** - NUNCA uses backticks:
-   Para pedidos de UN solo sabor (paquete completo):
+6. **FORMATO JSON CRÍTICO** - SIEMPRE en UNA SOLA LÍNEA:
+   ⚠️ CRÍTICO: El JSON DEBE estar en UNA SOLA LÍNEA, sin saltos de línea dentro del JSON.   
+    Para pedidos de UN solo sabor (paquete completo - una sola linea):
    {"items":[{"product_id":10,"nombre_product":"JUMEX SPORT","sabor_id":9,"sabor_nombre":"NARANJA","quantity":6,"total_price":183.00}]}
    
-   Para múltiples sabores del mismo producto:
-   {"items":[
-     {"product_id":4,"nombre_product":"JUMEX JUGOSA","sabor_id":1,"sabor_nombre":"MANZANA","quantity":2,"total_price":54.33},
-     {"product_id":4,"nombre_product":"JUMEX JUGOSA","sabor_id":2,"sabor_nombre":"MANGO","quantity":2,"total_price":54.33},
-     {"product_id":4,"nombre_product":"JUMEX JUGOSA","sabor_id":4,"sabor_nombre":"GUAYABA","quantity":2,"total_price":54.34}
-   ]}
+   Para múltiples sabores del mismo producto (una sola línea):
+   {"items":[{"product_id":4,"nombre_product":"JUMEX JUGOSA","sabor_id":1,"sabor_nombre":"MANZANA","quantity":2,"total_price":54.33},{"product_id":4,"nombre_product":"JUMEX JUGOSA","sabor_id":2,"sabor_nombre":"MANGO","quantity":2,"total_price":54.33},{"product_id":4,"nombre_product":"JUMEX JUGOSA","sabor_id":4,"sabor_nombre":"GUAYABA","quantity":2,"total_price":54.34}]}
 
    Ejemplo de json CORRECTO: {"items":[{"product_id":4,"nombre_product":"JUMEX JUGOSA","sabor_id":1,"sabor_nombre":"MANZANA","quantity":6,"total_price":163.00}]}
    Ejemplo de json INCORRECTO (tiraras el sistema y dara error): {"items":[{"product_id":4,"nombre_product":"JUMEX JUGOSA","sabor_id":1,"sabor_nombre":"MANZANA","quantity":6,"total_price":163.00}]
 
+**FORMATO INCORRECTO (NO HACER):**
+   {"items":[
+     {"product_id":4,...},
+     {"product_id":4,...}
+   ]}
+
    ⚠️ CRÍTICO: 
+  - TODO el JSON en UNA SOLA LÍNEA
+  - Sin saltos de línea dentro del JSON
+  - Sin espacios innecesarios
    - JSON debe aparecer DIRECTAMENTE en tu respuesta, SIN backticks
    - SIEMPRE generar JSON para CUALQUIER pedido de producto
    - Verificar que { tengan } y [ tengan ] correctos
@@ -496,30 +502,37 @@ export function parseOrderFromResponse(aiResponse) {
       return { items: [], needsClarification: true };
     }
 
-    // Buscar el inicio del JSON
-    const start = aiResponse.indexOf('{"items"');
-    if (start === -1) {
-      console.log("⚠️ No se encontró JSON en la respuesta");
+    // 🔥 NUEVO: Buscar TODOS los bloques JSON en la respuesta
+    const jsonMatches = aiResponse.matchAll(/\{"items":\s*\[[\s\S]*?\]\s*\}/g);
+    const allItems = [];
+
+    for (const match of jsonMatches) {
+      try {
+        const jsonStr = match[0];
+        console.log("🔍 JSON encontrado:", jsonStr.substring(0, 100) + "...");
+
+        const parsed = JSON.parse(jsonStr);
+        if (parsed.items && Array.isArray(parsed.items)) {
+          allItems.push(...parsed.items);
+          console.log(
+            `✅ Parseados ${parsed.items.length} items de este bloque`
+          );
+        }
+      } catch (parseError) {
+        console.log("⚠️ Error parseando bloque JSON:", parseError.message);
+        continue;
+      }
+    }
+
+    if (allItems.length === 0) {
+      console.log("⚠️ No se encontraron items válidos en la respuesta");
       return { items: [] };
     }
 
-    // Tomar desde {"items" hasta el último corchete o llave válido
-    let candidate = aiResponse.slice(start);
-
-    // Quitar texto extra después del último ] o }
-    const lastSquare = candidate.lastIndexOf("]");
-    const lastCurly = candidate.lastIndexOf("}");
-    const lastIndex = Math.max(lastSquare, lastCurly);
-
-    if (lastIndex !== -1) {
-      candidate = candidate.substring(0, lastIndex + 1);
-    }
-
-    // Intentar parsear
-    const parsed = JSON.parse(candidate);
-    return parsed;
+    console.log(`✅ Total items parseados: ${allItems.length}`);
+    return { items: allItems };
   } catch (err) {
-    console.log("❌ Error parseando JSON:", err.message);
+    console.log("❌ Error general parseando respuesta:", err.message);
     return { items: [] };
   }
 }
