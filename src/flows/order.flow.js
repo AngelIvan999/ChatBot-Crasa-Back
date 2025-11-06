@@ -1,6 +1,7 @@
 // ==================== src/flows/order.flow.js ====================
 import { addKeyword } from "@builderbot/bot";
 import supabaseService from "../services/supabase.js";
+import pdfService from "../services/pdf.service.js";
 
 const confirmOrderFlow = addKeyword(
   [
@@ -55,6 +56,15 @@ const confirmOrderFlow = addKeyword(
 
     // Confirmar el pedido
     await supabaseService.updateSaleStatus(sale.id, "confirmed");
+
+    console.log("🎫 Generando ticket PDF...");
+    const ticketResult = await pdfService.createAndSaveTicket(sale.id);
+
+    if (ticketResult.success) {
+      console.log(`✅ Ticket generado: ${ticketResult.fileName}`);
+    } else {
+      console.error(`⚠️ Error generando ticket: ${ticketResult.error}`);
+    }
 
     // Mostrar resumen más simple
     let orderSummary = "🎉 *¡PEDIDO CONFIRMADO!* 🎉\n\n";
