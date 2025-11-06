@@ -25,6 +25,8 @@ COPY --from=builder /tmp ./
 RUN corepack enable && corepack prepare pnpm@latest --activate 
 ENV PNPM_HOME=/usr/local/bin
 
+RUN apk add --no-cache ttf-dejavu fontconfig
+
 # Instala solo dependencias necesarias para producción
 RUN npm cache clean --force && pnpm install --prod --ignore-scripts \
     && addgroup -g 1001 -S nodejs && adduser -S -u 1001 nodejs \

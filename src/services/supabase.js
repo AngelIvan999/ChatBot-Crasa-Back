@@ -509,4 +509,27 @@ export default {
 
     return data;
   },
+
+  async getSaleById(saleId) {
+    const { data, error } = await supabase
+      .from("sales")
+      .select("*")
+      .eq("id", saleId)
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async updateSaleTicketUrl(saleId, ticketPath) {
+    const { data, error } = await supabase
+      .from("sales")
+      .update({ ticket_url: ticketPath })
+      .eq("id", saleId)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
 };
