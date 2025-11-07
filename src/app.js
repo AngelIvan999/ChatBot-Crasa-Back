@@ -346,7 +346,7 @@ async function main() {
   };
 
   // 🕐 Iniciar cron job de recordatorios
-  if (
+  /*if (
     process.env.NODE_ENV === "production" ||
     process.env.ENABLE_CRON === "true"
   ) {
@@ -354,7 +354,8 @@ async function main() {
   } else {
     console.log("ℹ️  Cron job deshabilitado (development mode)");
     console.log("   Usa ENABLE_CRON=true para habilitarlo");
-  }
+  }*/
+  console.log("⚠️  Sistema de recordatorios deshabilitado temporalmente");
 
   // Iniciar servidor
   httpServer(+PORT);
