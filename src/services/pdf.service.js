@@ -13,7 +13,7 @@ import { DateTime } from "luxon";
 export async function generateTicketPDF(sale, saleItems, user) {
   return new Promise((resolve, reject) => {
     try {
-      const doc = new PDFDocument({ margin: 10 }); // Ancho de ticket térmico (80mm)
+      const doc = new PDFDocument({ size: [226.77, 341.89], margin: 10 }); // Ancho de ticket térmico (80mm)
       const chunks = [];
 
       doc.on("data", (chunk) => chunks.push(chunk));
