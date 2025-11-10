@@ -7,6 +7,7 @@ const supabase = createClient(
 );
 
 export default {
+  supabase: supabase,
   // Users (sin cambios)
   async findOrCreateUser(phone, name = null) {
     const { data, error } = await supabase
