@@ -13,7 +13,7 @@ import { DateTime } from "luxon";
 export async function generateTicketPDF(sale, saleItems, user) {
   return new Promise((resolve, reject) => {
     try {
-      const doc = new PDFDocument({ size: [226.77, 841.89], margin: 10 }); // Ancho de ticket térmico (80mm)
+      const doc = new PDFDocument({ margin: 10 }); // Ancho de ticket térmico (80mm)
       const chunks = [];
 
       doc.on("data", (chunk) => chunks.push(chunk));
@@ -29,7 +29,7 @@ export async function generateTicketPDF(sale, saleItems, user) {
         .fontSize(8)
         .font("Helvetica")
         .text("C.I.F.: 01234567A", { align: "center" });*/
-      doc.text("C/ Arturo Soria, 1", { align: "center" });
+      //doc.text("C/ Arturo Soria, 1", { align: "center" });
       doc.text("C.P.: 62574 Progreso (Jiutepec, Mor)", { align: "center" });
       doc.text("777 271 4236", { align: "center" });
       doc.text("admin@crasa.com", { align: "center" });
