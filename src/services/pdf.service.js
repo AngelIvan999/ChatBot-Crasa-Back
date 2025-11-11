@@ -113,12 +113,12 @@ export async function generateTicketPDF(sale, saleItems, user) {
       const iva = totalSinIVA * 0.21;
       const total = totalSinIVA;
 
-      doc.fontSize(8).font("Helvetica");
+      /*doc.fontSize(8).font("Helvetica");
       doc.text(`TOTAL SIN I.V.A.`, 10, doc.y, { continued: true });
       doc.text(`${totalSinIVA.toFixed(2)}`, { align: "right" });
 
       doc.text(`I.V.A. 21%`, 10, doc.y, { continued: true });
-      doc.text(`${iva.toFixed(2)}`, { align: "right" });
+      doc.text(`${iva.toFixed(2)}`, { align: "right" });*/
 
       doc.moveDown(0.3);
       doc.fontSize(10).font("Helvetica-Bold");
@@ -132,11 +132,11 @@ export async function generateTicketPDF(sale, saleItems, user) {
       doc.moveDown(0.5);
 
       // --- PIE DE PÁGINA ---
-      doc
+      /*doc
         .fontSize(7)
         .font("Helvetica")
         .text("EL PERIODO DE DEVOLUCIONES", { align: "center" });
-      doc.text("CADUCA EL DÍA: 01/11/2019", { align: "center" });
+      doc.text("CADUCA EL DÍA: 01/11/2019", { align: "center" });*/
 
       doc.end();
     } catch (error) {
