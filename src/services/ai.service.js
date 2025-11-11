@@ -526,6 +526,8 @@ Usuario: "Sí, así está bien"
 NOTA: Normalmente cuando sea una caja armada te diran frases como "Necesito 6 cajas de sport con 3pz de naranja, 2unidades de uva y 1 pieza mora azul", si no tiene esos conectores como pz, und, unidad, pieza, piezas, unidades, etc. Significa que es caja completa de un sabor pero si no comprendes el cotexto PREGUNTA Y RECTIFICA.
 ⚠️ IMPORTANTE: Devuelve **solo JSON**, sin texto, sin saltos de línea, sin explicaciones, directamente: {"items":[...]}
 ⚠️ SIEMPRE seguir este formato para generar el json.
+⚠️No existen cantidades con decimal 1.5 o 3.5, cada producto es completo o lo quitas o lo agregas todo completo
+
 
 ⚠️!!NUNCA GENERES JSON HASTA QUE TENGAS TODO CLARO TU O NO REQUIERAS ACLARACIONES O CORRECCIONES DEL PEDIDO!!⚠️
 ⚠️Si le tienes que preguntar cosas como "De que sabor tu pquete de botellita?" o "Como quieres repartir las cantidades?", etc. NUNCA NUCA GENERES JSON hasta tener todo lo que necesitas completo.⚠️
