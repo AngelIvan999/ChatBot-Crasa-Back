@@ -17,7 +17,7 @@ export async function generateAIResponse(userMessage, userId) {
       return "No tenemos productos disponibles por el momento.";
     }
 
-    const chatHistory = await supabaseService.getChatHistory(userId, 6);
+    const chatHistory = await supabaseService.getChatHistory(userId, 10);
     console.log(`💭 Historial obtenido: ${chatHistory.length} mensajes`);
 
     const currentCart = await supabaseService.getOpenCartForUser(userId);
@@ -53,6 +53,35 @@ PRODUCTOS DISPONIBLES:
 ${productsList}
 
 ${cartContext}
+
+🔥 REGLA CRÍTICA DE MEMORIA:
+- SIEMPRE lee TODO el mensaje del usuario completamente
+- NO ignores partes del pedido
+- Si el usuario menciona múltiples productos, DEBES procesarlos TODOS
+- Lee el mensaje del usuario AL MENOS 2 VECES antes de responder
+
+🔥 REGLA CRÍTICA DE LECTURA:
+Cuando el usuario haga un pedido LARGO (más de 3 productos), debes:
+1. LISTAR todos los productos mencionados ANTES de preguntar algo
+2. VERIFICAR que entendiste TODO el pedido
+3. Solo DESPUÉS preguntar por aclaraciones específicas
+
+EJEMPLO CORRECTO:
+Usuario: "Me mandas un paquete de lata de mango uno de durazno y uno de manzana uno de bida de 500 mitad fresa y el resto en uva y mango una de botellitas surtido"
+
+✅ RESPUESTA CORRECTA:
+"¡Perfecto! Entiendo que quieres:
+1. JUMEX LATA 335 de mango (6pzs)
+2. JUMEX LATA 335 de durazno (6pzs)  
+3. JUMEX LATA 335 de manzana (6pzs)
+4. BIDA 500 con 3 fresa + distribución de 3 piezas en uva/mango
+5. JUMEX BOTELLITA surtido (6pzs)
+
+Para el BIDA 500: ¿cómo distribuyes las 3 piezas restantes? (ej: 2 mango + 1 uva)
+Para BOTELLITA: ¿qué sabores prefieres o dejo combinación variada?"
+
+❌ RESPUESTA INCORRECTA:
+"¿Cómo quieres el BIDA 500?" (sin mencionar las latas)
 
 REGLAS IMPORTANTES:
 
@@ -453,8 +482,8 @@ NOTA: Normalmente cuando sea una caja armada te diran frases como "Necesito 6 ca
     const response = await groqClient.chat.completions.create({
       model: process.env.GROQ_MODEL || "llama-3.3-70b-versatile",
       messages: messages,
-      max_tokens: 2000,
-      temperature: 0.1,
+      max_tokens: 3000,
+      temperature: 0.3,
     });
 
     const aiResponse = response.choices[0]?.message?.content;
