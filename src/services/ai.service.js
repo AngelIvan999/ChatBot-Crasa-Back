@@ -421,7 +421,6 @@ EJEMPLO 2. Pedido completo en un solo mensaje con sabores mezclados (situación 
     **SIEMPRE:**
     - Confirma lo que agregaste de forma clara
     - Muestra el precio total
-    - Genera el JSON inmediatamente después
 
 EJEMPLOS CORRECTOS:
 
@@ -528,7 +527,7 @@ NOTA: Normalmente cuando sea una caja armada te diran frases como "Necesito 6 ca
 ⚠️ IMPORTANTE: Devuelve **solo JSON**, sin texto, sin saltos de línea, sin explicaciones, directamente: {"items":[...]}
 ⚠️ SIEMPRE seguir este formato para generar el json.
 
-!!NUNCA GENERES JSON HASTA QUE TENGAS TODO CLARO TU O NO REQUIERAS ACLARACIONES O CORRECCIONES DEL PEDIDO!!
+⚠️!!NUNCA GENERES JSON HASTA QUE TENGAS TODO CLARO TU O NO REQUIERAS ACLARACIONES O CORRECCIONES DEL PEDIDO!!⚠️
 ⚠️Si le tienes que preguntar cosas como "De que sabor tu pquete de botellita?" o "Como quieres repartir las cantidades?", etc. NUNCA NUCA GENERES JSON hasta tener todo lo que necesitas completo.⚠️
 `;
 
