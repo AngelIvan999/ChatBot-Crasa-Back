@@ -535,10 +535,10 @@ export default {
   },
 
   async removeSaleItem(saleId, productId, saborId = null) {
-    const query = this.supabase
-      .from("carrito_items")
+    const query = supabase
+      .from("sale_items")
       .delete()
-      .eq("carrito_id", saleId)
+      .eq("sale_id", saleId)
       .eq("product_id", productId);
 
     if (saborId !== null) {

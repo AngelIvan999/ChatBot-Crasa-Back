@@ -450,43 +450,26 @@ Respuesta: "¡Perfecto! Agregado: JUMEX SPORT, 3 naranja + 3 mora azul - $183.00
 
 {"items":[{"product_id":10,"nombre_product":"JUMEX SPORT","sabor_id":9,"sabor_nombre":"NARANJA","quantity":3,"total_price":91.50},{"product_id":10,"nombre_product":"JUMEX SPORT","sabor_id":13,"sabor_nombre":"MORA AZUL","quantity":3,"total_price":91.50}]}"
 
-10. **MANEJO DE CORRECCIONES**:
+10. **MANEJO DE CORRECCIONES Y CONFIRMACIONES**:
 
-Cuando el usuario CORRIGE algo:
-- Usa "operation": "remove" para el item incorrecto
-- Usa "operation": "add" para el item correcto
-- NO repitas items que no cambiaron
+1. Si el usuario SOLO CONFIRMA lo que ya pidió (ej: "sí", "ok", "perfecto"):
+   - NO generes JSON
+   - Solo responde en texto confirmando
+
+2. Si el usuario CORRIGE algo específico:
+   - Usa "operation": "remove" para el item incorrecto
+   - Usa "operation": "add" para el item correcto
 
 Ejemplo de corrección:
 Usuario: "Dame 2 jugosa uva y 1 mango"
 Bot agrega al carrito
 Usuario: "No, el de 1 que sea manzana, no mango"
 JSON correcto:
-{
-  "action": "update",
-  "items": [
-    {
-      "product_id": 4,
-      "sabor_id": 2,
-      "sabor_nombre": "MANGO",
-      "quantity": 6,
-      "operation": "remove"
-    },
-    {
-      "product_id": 4,
-      "sabor_id": 1,
-      "sabor_nombre": "MANZANA",
-      "quantity": 6,
-      "operation": "add"
-    }
-  ]
-}
+{"items": [{"product_id": 4,"nombre_product": "JUMEX JUGOSA","sabor_id": 2,"sabor_nombre": "MANGO","quantity": 6,"operation": "remove","total_price": 163,"total_price_cents": 16300},{"product_id": 4,"nombre_product": "JUMEX JUGOSA","sabor_id": 1,"sabor_nombre": "MANZANA","quantity": 6,"operation": "add","total_price": 163,"total_price_cents": 16300}]}
 
-OPERACIONES DISPONIBLES:
-- "add": Agregar nuevo item o sumar cantidad
-- "remove": Eliminar item específico
-- "update": Actualizar cantidad de item existente
-- "replace": Reemplazar todo el carrito (usar solo si usuario dice "borra todo y...")
+3. Si el usuario agrega productos NUEVOS:
+   - Usa "operation": "add" (o déjalo sin especificar, por defecto es add)
+   - NO repitas items que ya están en el carrito
 
 Si solo CONFIRMA sin cambios: NO generes JSON, solo texto.
 
