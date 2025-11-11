@@ -533,4 +533,22 @@ export default {
     if (error) throw error;
     return data;
   },
+
+  async removeSaleItem(saleId, productId, saborId = null) {
+    const query = this.supabase
+      .from("carrito_items")
+      .delete()
+      .eq("carrito_id", saleId)
+      .eq("product_id", productId);
+
+    if (saborId !== null) {
+      query.eq("sabor_id", saborId);
+    }
+
+    const { error } = await query;
+
+    if (error) throw error;
+
+    console.log(`🗑️ Item removido del carrito ${saleId}`);
+  },
 };

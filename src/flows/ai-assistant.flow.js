@@ -189,6 +189,8 @@ async function processAIMessage(ctx, { state, flowDynamic }) {
 
         // Procesar cada item individualmente
         for (const item of orderData.items) {
+          const operation = item.operation || "add";
+
           const totalPriceCents =
             item.total_price_cents || Math.round(item.total_price * 100);
           const saborId = item.sabor_id || null;
@@ -199,22 +201,38 @@ async function processAIMessage(ctx, { state, flowDynamic }) {
             sabor_id: saborId,
             sabor_nombre: item.sabor_nombre,
             quantity: item.quantity,
+            operation: operation,
             total_price: item.total_price,
             total_price_cents: totalPriceCents,
           });
 
-          await supabaseService.addSaleItemNew(
-            sale.id,
-            item.product_id,
-            item.quantity,
-            totalPriceCents,
-            saborId
-          );
+          if (operation === "remove") {
+            await supabaseService.removeSaleItem(
+              sale.id,
+              item.product_id,
+              saborId
+            );
+            console.log(
+              `❌ Removido: ${item.nombre_product}${
+                item.sabor_nombre ? ` (${item.sabor_nombre})` : ""
+              }`
+            );
+          } else if (operation === "add") {
+            await supabaseService.addSaleItemNew(
+              sale.id,
+              item.product_id,
+              item.quantity,
+              totalPriceCents,
+              saborId
+            );
 
-          const saborText = item.sabor_nombre ? ` (${item.sabor_nombre})` : "";
-          console.log(
-            `✅ Item procesado: ${item.nombre_product}${saborText} x${item.quantity} - Total: $${item.total_price}`
-          );
+            const saborText = item.sabor_nombre
+              ? ` (${item.sabor_nombre})`
+              : "";
+            console.log(
+              `✅ Item procesado: ${item.nombre_product}${saborText} x${item.quantity} - Total: $${item.total_price}`
+            );
+          }
         }
 
         // Recalcular total del carrito
