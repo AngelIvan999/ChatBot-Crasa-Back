@@ -19,6 +19,9 @@ const confirmOrderFlow = addKeyword(
   try {
     console.log(`🎯 Confirmando pedido para usuario: ${ctx.from}`);
 
+    await state.update({ aiMode: false, conversationActive: false });
+    console.log("🚫 Modo IA desactivado para confirmación");
+
     const user = await supabaseService.findOrCreateUser(ctx.from);
     const sale = await supabaseService.getOpenCartForUser(user.id);
 
