@@ -43,7 +43,7 @@ export async function generateTicketPDF(sale, saleItems, user) {
       doc
         .fontSize(8)
         .font("Helvetica-Bold")
-        .text(`Factura Simpl.: F2019-000001`);
+        .text(`Ticket Simpl.: F2019-000001`);
       const fecha = DateTime.fromISO(sale.created_at)
         .setZone("America/Mexico_City")
         .toFormat("dd/MM/yyyy");
