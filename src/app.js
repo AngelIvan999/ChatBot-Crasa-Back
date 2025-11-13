@@ -63,12 +63,36 @@ async function main() {
     saveLog: async () => true,
   };
 
+  const blockMiddleware = async (ctx, { gotoFlow, endFlow }) => {
+    try {
+      const user = await supabaseService.findOrCreateUser(ctx.from);
+      const isBlocked = await supabaseService.isUserBlocked(user.id);
+
+      if (isBlocked) {
+        console.log(
+          `🚫 Usuario ${user.id} (${ctx.from}) bloqueado - mensaje ignorado completamente`
+        );
+        return endFlow(); // 👈 Detener ANTES de procesar flows
+      }
+    } catch (error) {
+      console.error("❌ Error en middleware de bloqueo:", error);
+    }
+  };
+
   // ✅ CREAR BOT Y OBTENER handleCtx
-  const { httpServer, handleCtx } = await createBot({
-    provider,
-    flow,
-    database: mockDatabase,
-  });
+  const { httpServer, handleCtx } = await createBot(
+    {
+      provider,
+      flow,
+      database: mockDatabase,
+    },
+    {
+      globalState: {},
+      extensions: {
+        beforeFlow: blockMiddleware,
+      },
+    }
+  );
 
   // ✅ CONFIGURAR ENDPOINTS usando handleCtx
   const app = provider.server;

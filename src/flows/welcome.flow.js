@@ -17,6 +17,13 @@ const keywordFlow = addKeyword([
   "buenas noches",
 ])
   .addAction(async (ctx, { state, flowDynamic, gotoFlow }) => {
+    const isBlocked = await supabaseService.isUserBlocked(user.id);
+
+    if (isBlocked) {
+      console.log(`🚫 Usuario ${user.id} bloqueado - ignorando comando`);
+      return endFlow();
+    }
+
     const currentState = state.getMyState() || {};
     if (currentState.aiMode) {
       console.log("🤖 Modo IA activo - redirigiendo a AI flow");
