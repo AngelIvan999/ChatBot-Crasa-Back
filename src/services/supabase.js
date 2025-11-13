@@ -551,4 +551,54 @@ export default {
 
     console.log(`🗑️ Item removido del carrito ${saleId}`);
   },
+
+  async clearChatHistory(userId) {
+    const { error } = await supabase
+      .from("chat_history")
+      .delete()
+      .eq("user_id", userId);
+
+    if (error) {
+      console.error(`❌ Error limpiando chat del usuario ${userId}:`, error);
+      throw error;
+    }
+
+    console.log(`✅ Historial eliminado para usuario ${userId}`);
+  },
+
+  async setUserBlocked(userId, blocked) {
+    const user = await this.getUserById(userId);
+
+    if (!user) {
+      throw new Error(`Usuario ${userId} no encontrado`);
+    }
+
+    const updatedMetadata = {
+      ...(user.metadata || {}),
+      blocked: blocked,
+      blockedAt: blocked ? new Date().toISOString() : null,
+    };
+
+    const { data, error } = await supabase
+      .from("users")
+      .update({ metadata: updatedMetadata })
+      .eq("id", userId)
+      .select()
+      .single();
+
+    if (error) {
+      console.error(`❌ Error bloqueando usuario ${userId}:`, error);
+      throw error;
+    }
+
+    console.log(
+      `✅ Usuario ${userId} ${blocked ? "bloqueado" : "desbloqueado"}`
+    );
+    return data;
+  },
+
+  async isUserBlocked(userId) {
+    const user = await this.getUserById(userId);
+    return user?.metadata?.blocked === true;
+  },
 };
