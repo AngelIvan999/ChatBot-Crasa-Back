@@ -2,6 +2,7 @@
 import { addKeyword } from "@builderbot/bot";
 import supabaseService from "../services/supabase.js";
 import { aiCatchAllFlow } from "./ai-assistant.flow.js";
+import { checkIfBlocked } from "../utils/block.utils.js";
 
 // Flow para keywords de inicio
 const keywordFlow = addKeyword([
@@ -16,14 +17,8 @@ const keywordFlow = addKeyword([
   "buenas tardes",
   "buenas noches",
 ])
-  .addAction(async (ctx, { state, flowDynamic, gotoFlow }) => {
-    const isBlocked = await supabaseService.isUserBlocked(user.id);
-
-    if (isBlocked) {
-      console.log(`🚫 Usuario ${user.id} bloqueado - ignorando comando`);
-      return endFlow();
-    }
-
+  .addAction(async (ctx, { state, flowDynamic, gotoFlow, endFlow }) => {
+    if (await checkIfBlocked(ctx, endFlow)) return;
     const currentState = state.getMyState() || {};
     if (currentState.aiMode) {
       console.log("🤖 Modo IA activo - redirigiendo a AI flow");
@@ -62,13 +57,6 @@ const assistantButtonFlow = addKeyword([
     buttons: [{ body: "🚪 Salir" }],
   },
   async (ctx, { state }) => {
-    const isBlocked = await supabaseService.isUserBlocked(user.id);
-
-    if (isBlocked) {
-      console.log(`🚫 Usuario ${user.id} bloqueado - ignorando comando`);
-      return endFlow();
-    }
-
     console.log("🤖 Modo asistente activado para:", ctx.from);
     const user = await supabaseService.findOrCreateUser(ctx.from);
     await state.update({
@@ -83,12 +71,6 @@ const assistantButtonFlow = addKeyword([
 const exitAssistantFlow = addKeyword(["🚪 Salir", "SALIR_ASISTENTE"])
   .addAction(async (ctx, { state }) => {
     await state.update({ aiMode: false, conversationActive: false });
-    const isBlocked = await supabaseService.isUserBlocked(user.id);
-
-    if (isBlocked) {
-      console.log(`🚫 Usuario ${user.id} bloqueado - ignorando comando`);
-      return endFlow();
-    }
   })
 
   .addAnswer("👋 Has salido del asistente.\n\n¿Qué te gustaría hacer?", {
@@ -105,12 +87,6 @@ const menuButtonFlow = addKeyword(["📋 Ver menú", "VER_MENU"]).addAction(
     console.log("🎯 Usuario eligió Ver menú");
 
     try {
-      const isBlocked = await supabaseService.isUserBlocked(user.id);
-
-      if (isBlocked) {
-        console.log(`🚫 Usuario ${user.id} bloqueado - ignorando comando`);
-        return endFlow();
-      }
       const user = await supabaseService.findOrCreateUser(ctx.from);
       await state.update({ user, aiMode: false });
 
@@ -189,13 +165,6 @@ const menuButtonFlow = addKeyword(["📋 Ver menú", "VER_MENU"]).addAction(
 // Flow para volver al inicio
 const backToStartFlow = addKeyword(["🏠 Inicio", "INICIO"])
   .addAction(async (ctx, { state }) => {
-    const isBlocked = await supabaseService.isUserBlocked(user.id);
-
-    if (isBlocked) {
-      console.log(`🚫 Usuario ${user.id} bloqueado - ignorando comando`);
-      return endFlow();
-    }
-
     const user = await supabaseService.findOrCreateUser(ctx.from);
     await state.update({ user, aiMode: false, conversationActive: false });
   })

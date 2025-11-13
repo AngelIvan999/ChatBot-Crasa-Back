@@ -2,6 +2,7 @@
 import { addKeyword } from "@builderbot/bot";
 import supabaseService from "../services/supabase.js";
 import pdfService from "../services/pdf.service.js";
+import { checkIfBlocked } from "../utils/block.utils.js";
 
 const confirmOrderFlow = addKeyword(
   [
@@ -15,7 +16,8 @@ const confirmOrderFlow = addKeyword(
     "procesar pedido",
   ],
   { sensitive: false }
-).addAction(async (ctx, { flowDynamic, state }) => {
+).addAction(async (ctx, { flowDynamic, state, endFlow }) => {
+  if (await checkIfBlocked(ctx, endFlow)) return;
   try {
     console.log(`🎯 Confirmando pedido para usuario: ${ctx.from}`);
 
