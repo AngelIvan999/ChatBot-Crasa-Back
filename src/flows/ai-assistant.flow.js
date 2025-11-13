@@ -12,6 +12,13 @@ import supabaseService from "../services/supabase.js";
 console.log("🔄 Cargando ai-assistant.flow.js...");
 
 async function processAIMessage(ctx, { state, flowDynamic }) {
+  const isBlocked = await supabaseService.isUserBlocked(user.id);
+
+  if (isBlocked) {
+    console.log(`🚫 Usuario ${user.id} bloqueado - ignorando comando`);
+    return endFlow();
+  }
+
   const userMessage = ctx.body?.trim();
 
   if (!userMessage) {
@@ -328,6 +335,13 @@ export const aiCatchAllFlow = addKeyword([/[\s\S]*/], { regex: true })
       "soporte",
     ];
 
+    const isBlocked = await supabaseService.isUserBlocked(user.id);
+
+    if (isBlocked) {
+      console.log(`🚫 Usuario ${user.id} bloqueado - ignorando comando`);
+      return endFlow();
+    }
+
     const message = ctx.body?.toLowerCase().trim();
 
     if (ignoredCommands.some((cmd) => message.includes(cmd.toLowerCase()))) {
@@ -341,6 +355,13 @@ export const aiCatchAllFlow = addKeyword([/[\s\S]*/], { regex: true })
 
 const aiErrorFlow = addKeyword(["error", "problema", "falla"]).addAction(
   async (ctx, { state, flowDynamic }) => {
+    const isBlocked = await supabaseService.isUserBlocked(user.id);
+
+    if (isBlocked) {
+      console.log(`🚫 Usuario ${user.id} bloqueado - ignorando comando`);
+      return endFlow();
+    }
+
     const currentState = state.getMyState() || {};
 
     if (!currentState.aiMode) {
@@ -364,6 +385,13 @@ const aiSpecialCommandsFlow = addKeyword([
   "intentar de nuevo",
   "reintentar",
 ]).addAction(async (ctx, { state, flowDynamic }) => {
+  const isBlocked = await supabaseService.isUserBlocked(user.id);
+
+  if (isBlocked) {
+    console.log(`🚫 Usuario ${user.id} bloqueado - ignorando comando`);
+    return endFlow();
+  }
+
   const currentState = state.getMyState() || {};
 
   if (!currentState.aiMode) {
