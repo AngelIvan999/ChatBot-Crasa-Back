@@ -286,50 +286,6 @@ async function main() {
     }
   });
 
-  // 📧 Endpoint: Vaciar historial de chat
-  app.delete(
-    "/api/chat/:userId/clear",
-    handleCtx(async (bot, req, res) => {
-      try {
-        console.log(`🗑️ DELETE /api/chat/${req.params.userId}/clear`);
-
-        const userId = parseInt(req.params.userId);
-
-        if (!userId || isNaN(userId)) {
-          res.writeHead(400, { "Content-Type": "application/json" });
-          res.end(
-            JSON.stringify({
-              success: false,
-              error: "userId inválido",
-            })
-          );
-          return;
-        }
-
-        // Eliminar todos los mensajes del usuario
-        await supabaseService.clearChatHistory(userId);
-
-        console.log(`✅ Chat limpiado para usuario ${userId}`);
-        res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(
-          JSON.stringify({
-            success: true,
-            message: "Historial eliminado correctamente",
-          })
-        );
-      } catch (error) {
-        console.error("❌ Error limpiando chat:", error);
-        res.writeHead(500, { "Content-Type": "application/json" });
-        res.end(
-          JSON.stringify({
-            success: false,
-            error: error.message,
-          })
-        );
-      }
-    })
-  );
-
   // 📧 Endpoint: Bloquear/Desbloquear usuario
   app.post(
     "/api/user/:userId/block",

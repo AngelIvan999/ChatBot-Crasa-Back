@@ -552,20 +552,6 @@ export default {
     console.log(`🗑️ Item removido del carrito ${saleId}`);
   },
 
-  async clearChatHistory(userId) {
-    const { error } = await supabase
-      .from("chat_history")
-      .delete()
-      .eq("user_id", userId);
-
-    if (error) {
-      console.error(`❌ Error limpiando chat del usuario ${userId}:`, error);
-      throw error;
-    }
-
-    console.log(`✅ Historial eliminado para usuario ${userId}`);
-  },
-
   async setUserBlocked(userId, blocked) {
     const user = await this.getUserById(userId);
 
