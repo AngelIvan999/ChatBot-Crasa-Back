@@ -77,6 +77,7 @@ async function main() {
   app.use((req, res, next) => {
     const allowedOrigins = [
       "http://localhost:5173",
+      "http://127.0.0.1:5173",
       "https://crasabot.netlify.app/", // 👈 Reemplazar con tu URL de Netlify
     ];
 
@@ -87,12 +88,13 @@ async function main() {
 
     res.setHeader(
       "Access-Control-Allow-Methods",
-      "GET, POST, PUT, DELETE, OPTIONS"
+      "GET, POST, PUT, DELETE, OPTIONS, PATCH"
     );
     res.setHeader(
       "Access-Control-Allow-Headers",
-      "Content-Type, Authorization"
+      "Content-Type, Authorization, X-Requested-With"
     );
+    res.setHeader("Access-Control-Allow-Credentials", "true");
 
     if (req.method === "OPTIONS") {
       res.writeHead(200);
